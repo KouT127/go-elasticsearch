@@ -21,20 +21,32 @@ func (l logger) Printf(format string, v ...interface{}) {
 	fmt.Printf(format+"\n", v)
 }
 
-func InitClient() {
-	//logger := logger{}
+func InitClient(endpoint string) {
 
 	client, err = elastic.NewClient(
-		elastic.SetURL("http://localhost:9200"),
+		elastic.SetURL(endpoint),
 		elastic.SetSniff(false),
-		//elastic.SetInfoLog(logger),
-		//elastic.SetTraceLog(logger),
-		//elastic.SetErrorLog(logger),
 	)
 	if err != nil {
 		panic(err)
 	}
+}
 
+func InitClientWithLogger(endpoint string) {
+	logger := logger{}
+	client, err = elastic.NewClient(
+		elastic.SetURL(endpoint),
+		elastic.SetSniff(false),
+		elastic.SetInfoLog(logger),
+		elastic.SetTraceLog(logger),
+		elastic.SetErrorLog(logger),
+	)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func existsIndices() {
 	indices := []string{
 		bookDocumentIndexName,
 	}

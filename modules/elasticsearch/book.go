@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/olivere/elastic/v7"
+	uuid "github.com/satori/go.uuid"
 	"reflect"
 	"time"
 )
@@ -28,9 +29,23 @@ func (d BookDocument) create() error {
 	return nil
 }
 
-func SearchBook(title string) ([]BookDocument, error) {
+func BulkCreateBooks(docs []BookDocument) error {
+	ctx := context.Background()
+	bulkRequests := client.Bulk()
+	for _, doc := range docs {
+		req := elastic.NewBulkIndexRequest().Index(bookDocumentIndexName).Id(uuid.NewV4().String()).Doc(doc)
+		bulkRequests.Add(req)
+	}
+	_, err := bulkRequests.Do(ctx)
+	if err != nil {
+		return fmt.Errorf("bulkrequest failed")
+	}
+	return nil
+}
+
+func SearchBooks(title string) ([]BookDocument, error) {
 	var bookType BookDocument
-	docs := make([]BookDocument, 10)
+
 	ctx := context.Background()
 	query := elastic.
 		NewMultiMatchQuery(title, "title").
@@ -48,6 +63,7 @@ func SearchBook(title string) ([]BookDocument, error) {
 		return nil, fmt.Errorf("search failed: %s", err)
 	}
 
+	docs := make([]BookDocument, len(searchResult.Hits.Hits))
 	for idx, item := range searchResult.Each(reflect.TypeOf(bookType)) {
 		if book, ok := item.(BookDocument); ok {
 			docs[idx] = book
