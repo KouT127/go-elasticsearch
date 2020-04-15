@@ -9,16 +9,30 @@ import (
 	"time"
 )
 
+type Author struct {
+	Name string `json:"name"`
+}
+
+type IndustryIdentifier struct {
+	Type       string `json:"type"`
+	Identifier int    `json:"identifier"`
+}
+
 type BookDocument struct {
-	Title       string    `json:"title"`
-	Author      string    `json:"author"`
-	PublishedAt time.Time `json:"published_at"`
+	Title               string               `json:"title"`
+	Description         string               `json:"description"`
+	Authors             []Author             `json:"authors"`
+	IndustryIdentifiers []IndustryIdentifier `json:"industry_identifiers"`
+	ThumbnailURL        string               `json:"thumbnail_url"`
+	PublishedAt         time.Time            `json:"published_at"`
 }
 
 func (d BookDocument) create() error {
 	b := BookDocument{
 		Title:       "マイクロサービスアーキテクチャ",
-		Author:      "Sam Newman",
+		Authors:     []Author{
+			{Name: "Sam Newman"},
+		},
 		PublishedAt: time.Now(),
 	}
 	ctx := context.Background()
@@ -70,4 +84,13 @@ func SearchBooks(title string) ([]BookDocument, error) {
 		}
 	}
 	return docs, nil
+}
+
+func DeleteBooksIndex() error{
+	ctx := context.Background()
+	_, err := client.DeleteIndex(bookDocumentIndexName).Do(ctx)
+	if err != nil {
+		return fmt.Errorf("Delete index failed: %s", err)
+	}
+	return nil
 }

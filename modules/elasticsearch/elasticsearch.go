@@ -46,7 +46,7 @@ func InitClientWithLogger(endpoint string) {
 	}
 }
 
-func existsIndices() {
+func CreateIndices() {
 	indices := []string{
 		bookDocumentIndexName,
 	}
