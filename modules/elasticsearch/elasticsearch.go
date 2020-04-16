@@ -46,7 +46,7 @@ func InitClientWithLogger(endpoint string) {
 	}
 }
 
-func CreateIndices() {
+func CreateIndices() error {
 	indices := []string{
 		bookDocumentIndexName,
 	}
@@ -57,13 +57,14 @@ func CreateIndices() {
 		service.Index([]string{name})
 		exists, err := service.Do(ctx)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("index not exists: %s", err)
 		}
 		if !exists {
 			_, err := client.CreateIndex(name).Do(ctx)
 			if err != nil {
-				panic(err)
+				return fmt.Errorf("create index failed: %s", err)
 			}
 		}
 	}
+	return nil
 }

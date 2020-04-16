@@ -6,7 +6,7 @@ import (
 
 func NewRootCmd() *cobra.Command {
 	commands := []*cobra.Command{
-		newReindexCmd(),
+		newRebuildIndexCmd(),
 	}
 
 	rootCmd := &cobra.Command{
